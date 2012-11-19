@@ -37,6 +37,7 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
     owner params[:owner]
     group params[:group]
     mode 0755
+    recursive true
     action :create
   end
 
