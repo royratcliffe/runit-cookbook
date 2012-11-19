@@ -29,8 +29,9 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
   end
   params[:finish_script_template_name] ||= params[:template_name]
 
+  service_dir = params[:active_directory]
   sv_dir_name = "#{params[:directory]}/#{params[:name]}"
-  service_dir_name = "#{params[:active_directory]}/#{params[:name]}"
+  service_dir_name = "#{service_dir}/#{params[:name]}"
   params[:options].merge!(:env_dir => "#{sv_dir_name}/env") unless params[:env].empty?
 
   directory sv_dir_name do
@@ -157,6 +158,15 @@ EOF
   end
 
   unless node[:platform] == "gentoo"
+    # Create the service directory if it does not exist. For example, Ubuntu
+    # 12.04.1 LTS does not have an /etc/service directory by default.
+    directory service_dir do
+      owner params[:owner]
+      group params[:group]
+      mode 0755
+      action :create
+    end
+
     link service_dir_name do
       to sv_dir_name
     end
